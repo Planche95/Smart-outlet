@@ -1,4 +1,8 @@
-void eepromSave(int from, int maxLength, String value){
+#include <Arduino.h>
+#include <EEPROM.h>
+#include "Eeprom.h"
+
+void Eeprom::eepromSave(int from, int maxLength, String value){
   if(value.length() < maxLength){
     Serial.println("EEPROM: Write start " + value);
     
@@ -18,7 +22,7 @@ void eepromSave(int from, int maxLength, String value){
   }
 }
 
-String eepromRead(int from){
+String Eeprom::eepromRead(int from){
   EEPROM.begin(512);
   
   byte valueLength = EEPROM.read(from);
@@ -50,7 +54,7 @@ String eepromRead(int from){
   }
 }
 
-void readFirst66Bytes(){
+void Eeprom::readFirst66Bytes(){
   EEPROM.begin(512);
   for(int i = 0; i < 66; i++){
     char c = EEPROM.read(i);

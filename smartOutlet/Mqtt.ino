@@ -6,7 +6,7 @@ void configureMqtt(){
 }
 
 boolean connectMqtt(){
-  boolean isConnected = mqttClient.connect(ssidAccessPoint);
+  boolean isConnected = mqttClient.connect(Network::ssidAccessPoint);
   Serial.print("MQTT connected: ");
   Serial.println(isConnected);
   return isConnected;

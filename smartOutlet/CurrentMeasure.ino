@@ -45,9 +45,9 @@ void sendAverageCurrent(void *context){
   sumCurrent = 0.0;
   i = 0;
   
-  char topic[8 + strlen(ssidAccessPoint)];
+  char topic[8 + strlen(Network::ssidAccessPoint)];
   strcpy(topic, "sockets/");
-  strcat(topic, ssidAccessPoint);
+  strcat(topic, Network::ssidAccessPoint);
   
   publishMqtt(topic, stringMessage); 
   Serial.print("i = ");
