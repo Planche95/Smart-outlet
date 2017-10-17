@@ -1,28 +1,22 @@
-#include <ESP8266WiFi.h>
-#include <WiFiClient.h>
-#include <ESP8266WebServer.h>
-#include <EEPROM.h>
-#include <PubSubClient.h>
-#include "Timer.h"
 #include "Network.h"
-
-WiFiClient client;
-PubSubClient mqttClient(client);
-
-Timer timer;
+#include "Mqtt.h"
+#include "CurrentMeasure.h"
 
 Network network("123456789");
+Mqtt mqtt("192.168.0.103", 1883);
+CurrentMeasure currentMeasure(mqtt);
 
 void setup() {
   Serial.begin(115200);
   Serial.println();
+  
   network.configure();
-  configureMqtt();
-  startTimers();
+  mqtt.configure();  
+  currentMeasure.startTimers();
 }
 
 void loop() {
   network.update();
-  mqttClient.loop();
-  timer.update();
+  mqtt.update();
+  currentMeasure.update();
 }
