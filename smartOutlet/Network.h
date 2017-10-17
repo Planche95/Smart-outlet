@@ -5,8 +5,8 @@
 
 class Network{
   
-  private:    
-    const char* passwordAccessPoint = "123456789";
+  private:      
+    static char* _passwordAccessPoint;    
     AccessPoint* accessPoint;
 
     void configureSsid();
@@ -22,8 +22,9 @@ class Network{
     static const int ssidEepromMaxLength = 32;
     static const int passwordEepromMaxLength = 32;
 
-    static char ssidAccessPoint[15];
-  
+    static char _ssidAccessPoint[15];
+
+    Network(char* passwordAccessPoint);
     void configure();
     void update();
 };

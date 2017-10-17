@@ -6,9 +6,9 @@
 class AccessPoint{
   
   private:
-  static char* ssid;
-  static char* password;
-  static ESP8266WebServer server;
+  static char* _ssid;
+  static char* _password;
+  static ESP8266WebServer _server;
 
   static void handleRoot();
   static void handleNotFound();

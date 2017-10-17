@@ -11,7 +11,7 @@ PubSubClient mqttClient(client);
 
 Timer timer;
 
-Network network;
+Network network("123456789");
 
 void setup() {
   Serial.begin(115200);

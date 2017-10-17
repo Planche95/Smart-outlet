@@ -6,8 +6,8 @@
 class Host{
 
   private:
-  static ESP8266WebServer server;
-  static char* ssid;
+  static ESP8266WebServer _server;
+  static char* _ssid;
 
   static void handleStartTimer();
   static void handleRoot();

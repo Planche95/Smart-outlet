@@ -2,17 +2,21 @@
 #include "Eeprom.h"
 #include "Network.h"
 
+char* AccessPoint::_ssid;
+char* AccessPoint::_password;
+ESP8266WebServer AccessPoint::_server;
+
 void AccessPoint::handleRoot(){
-  server.send(200,"text/html", "Hello from esp8266! :" + String(ssid));
+  _server.send(200,"text/html", "Hello from esp8266! :" + String(_ssid));
 }
 
 void AccessPoint::handleNotFound(){
-  server.send(200,"text/html", server.uri());
+  _server.send(200,"text/html", _server.uri());
 }
 
 void AccessPoint::handleConfigure(){
-  if(server.args() == 2){
-    saveSsidAndPassword(server.arg(0), server.arg(1));
+  if(_server.args() == 2){
+    saveSsidAndPassword(_server.arg(0), _server.arg(1));
   }
   else{
     Serial.println("Niepoprawna liczba argumentow");
@@ -26,27 +30,27 @@ void AccessPoint::saveSsidAndPassword(String ssid, String password){
   ssid.toCharArray(ssidArray, ssid.length() + 1);
   password.toCharArray(passwordArray, password.length() + 1);
 
-  //Eeprom::eepromSave(Network::ssidEepromStartByte, Network::ssidEepromMaxLength, ssidArray);
-  //Eeprom::eepromSave(Network::passwordEepromStartByte, Network::passwordEepromMaxLength, passwordArray);
+  Eeprom::eepromSave(Network::ssidEepromStartByte, Network::ssidEepromMaxLength, ssidArray);
+  Eeprom::eepromSave(Network::passwordEepromStartByte, Network::passwordEepromMaxLength, passwordArray);
   Serial.println("Reset Arduino!");
   stop();  
 }
 
 AccessPoint::AccessPoint(char* ssid, char* password){
-  this->ssid = ssid;
-  this->password = password; 
-  server = ESP8266WebServer(80);
+  _ssid = ssid;
+  _password = password; 
+  _server = ESP8266WebServer(80);
 }
 
 void AccessPoint::configure(){
-  WiFi.softAP(ssid,password);
-  server.on("/",handleRoot);
-  server.on("/configure", handleConfigure);
-  server.onNotFound(handleNotFound);
+  WiFi.softAP(_ssid, _password);
+  _server.on("/",handleRoot);
+  _server.on("/configure", handleConfigure);
+  _server.onNotFound(handleNotFound);
 }
   
 void AccessPoint::begin(){
-  server.begin();
+  _server.begin();
   Serial.println("Access point!");  
 }
 
@@ -55,5 +59,5 @@ void AccessPoint::stop(){
 }
 
 void AccessPoint::handleClient(){
-  server.handleClient();
+  _server.handleClient();
 }
