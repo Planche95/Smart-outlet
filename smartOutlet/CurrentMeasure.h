@@ -2,33 +2,29 @@
 #define CurrentMeasure_h
 
 #include <Arduino.h>
-#include "Timer.h"
 #include "Mqtt.h"
 
 class CurrentMeasure{
 
   private:
-  Timer timer;
-  static Mqtt mqtt;
-  int timerMilisecId;
-  int timerSecId;
-  int timerMinId;
+  Mqtt mqtt;
   
-  static int maxCurrent;
-  static float sumCurrent;
-  static int i;
+  float windowLength = 20.0/60;
+  int sensorValue = 0;
+  float intercept = -0.1310; // to be adjusted based on calibration testing
+  float slope = 0.04099; // to be adjusted based on calibration testing
+  float current_amps; // actual measure current
+  
+  unsigned long printPeriod = 1000;
+  unsigned long previousMillis = 0;
 
-  void timerLastWill();
-  static int getCurrentTest();
-  static void readCurrent(void *context);
-  static void addCurrent(void *context);
-  static void sendAverageCurrent(void *context);
+  //TODO for tests
+  int i = 0;
+  int j = 0;
 
   public:
   CurrentMeasure(Mqtt mqtt);
   CurrentMeasure();
-  void startTimers();
-  void stopTimers();
   void update();
 };
 

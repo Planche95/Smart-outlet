@@ -21,7 +21,7 @@ class Mqtt{
   void configure();
   boolean connect();
   void disconnect();
-  void isConnected();
+  int getState();
   void publish(char* topic, char* payload);
   void update();
 };

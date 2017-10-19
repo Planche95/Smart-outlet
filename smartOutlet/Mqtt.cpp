@@ -26,9 +26,11 @@ void Mqtt::disconnect(){
   mqttClient.disconnect();
 }
 
-void Mqtt::isConnected(){
-  Serial.print("MQTT connected: ");
-  Serial.println(mqttClient.connected());
+int Mqtt::getState(){
+  int temp = mqttClient.state();
+  Serial.print("MQTT state: ");
+  Serial.println(temp);
+  return temp;
 }
 
 void Mqtt::publish(char* topic, char* payload){
@@ -37,6 +39,8 @@ void Mqtt::publish(char* topic, char* payload){
 }
 
 void Mqtt::update(){
-  mqttClient.loop();
+  if(mqttClient.state() == 0){
+    mqttClient.loop();  
+  }
 }
 

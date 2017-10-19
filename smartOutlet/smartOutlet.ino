@@ -4,7 +4,8 @@
 #include "Eeprom.h"
 
 //TODO const
-char* SSID_ACCESS_POINT;
+const int SSID_ACCESS_POINT_SIZE = 15;
+char SSID_ACCESS_POINT[SSID_ACCESS_POINT_SIZE];
 char* ACCESS_POINT_PASSWORD = "123456789";
 char* MQTT_IP = "192.168.0.103";
 int MQTT_PORT = 1883;
@@ -16,12 +17,16 @@ CurrentMeasure currentMeasure;
 void configureSsid(){
   String ssidAP = String(ESP.getFlashChipId()) + String(ESP.getChipId());
   Serial.println("SSID: " + ssidAP);
-  ssidAP.toCharArray(SSID_ACCESS_POINT, strlen(SSID_ACCESS_POINT));
+  ssidAP.toCharArray(SSID_ACCESS_POINT, SSID_ACCESS_POINT_SIZE);
+  Serial.print("SSID: ");
+  Serial.println(SSID_ACCESS_POINT);
 }
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(57600);
   Serial.println();
+
+  //WiFi.softAPdisconnect(true);
   
   configureSsid();
 
@@ -34,7 +39,8 @@ void setup() {
   
   network.configure();
   mqtt.configure();  
-  currentMeasure.startTimers();
+  
+  //currentMeasure.startTimers();
 }
 
 void loop() {

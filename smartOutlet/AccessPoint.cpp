@@ -1,5 +1,7 @@
 #include "AccessPoint.h"
 #include "Eeprom.h"
+#include <ESP8266WiFi.h>
+#include <WiFiClient.h>
 
 char* AccessPoint::ssid;
 char* AccessPoint::password;
@@ -34,6 +36,10 @@ void AccessPoint::handleConfigure(){
 
 void AccessPoint::configure(){
   WiFi.softAP(ssid, password);
+  Serial.print("Ssid: ");
+  Serial.println(ssid);
+  Serial.print("Password: ");
+  Serial.println(password);
   server.on("/",handleRoot);
   server.on("/configure", handleConfigure);
   server.onNotFound(handleNotFound);
