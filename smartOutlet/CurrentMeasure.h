@@ -3,24 +3,28 @@
 
 #include <Arduino.h>
 #include "Mqtt.h"
+#include <Filters.h>
 
 class CurrentMeasure{
 
   private:
   Mqtt mqtt;
+  RunningStatistics inputStats;
   
-  float windowLength = 20.0/60;
-  int sensorValue = 0;
-  float intercept = -0.1310; // to be adjusted based on calibration testing
-  float slope = 0.04099; // to be adjusted based on calibration testing
-  float current_amps; // actual measure current
-  
-  unsigned long printPeriod = 1000;
+  static const float windowLength;
+  static const float intercept;
+  static const float slope;
+
+  static const unsigned long printPeriod;
   unsigned long previousMillis = 0;
 
-  //TODO for tests
-  int i = 0;
-  int j = 0;
+  float sigmaSum = 0;
+  int sensorValue = 0;
+  int secondsCounter = 0;
+  int samplesCounter = 0;
+
+  void measure();
+  void calibrate();
 
   public:
   CurrentMeasure(Mqtt mqtt);

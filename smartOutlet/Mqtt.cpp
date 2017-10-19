@@ -28,8 +28,8 @@ void Mqtt::disconnect(){
 
 int Mqtt::getState(){
   int temp = mqttClient.state();
-  Serial.print("MQTT state: ");
-  Serial.println(temp);
+  //Serial.print("MQTT state: ");
+  //Serial.println(temp);
   return temp;
 }
 

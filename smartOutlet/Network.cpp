@@ -62,6 +62,10 @@ void Network::configure(){
   }
 }
 
+bool Network::isHost(){
+  return accessPoint == NULL;
+}
+
 void Network::update(){
   if(accessPoint != NULL){
     (*accessPoint).handleClient();  

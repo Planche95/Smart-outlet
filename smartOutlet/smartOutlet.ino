@@ -25,8 +25,6 @@ void configureSsid(){
 void setup() {
   Serial.begin(57600);
   Serial.println();
-
-  //WiFi.softAPdisconnect(true);
   
   configureSsid();
 
@@ -35,17 +33,18 @@ void setup() {
 
   network = Network(ssidNetwork, passwordNetwork, SSID_ACCESS_POINT, ACCESS_POINT_PASSWORD);
   mqtt = Mqtt(MQTT_IP, MQTT_PORT, SSID_ACCESS_POINT);
-  currentMeasure = CurrentMeasure(mqtt);
-  
+    
   network.configure();
   mqtt.configure();  
-  
-  //currentMeasure.startTimers();
+
+  currentMeasure = CurrentMeasure(mqtt);
 }
 
 void loop() {
   network.update();
   mqtt.update();
-  currentMeasure.update();
+  if(network.isHost()){
+    currentMeasure.update();  
+  }
 }
 

@@ -1,7 +1,9 @@
 #include "CurrentMeasure.h"
-#include <Filters.h>
 
-RunningStatistics inputStats;
+const float CurrentMeasure::windowLength = 20.0/60;
+const float CurrentMeasure::intercept = -0.1310;
+const float CurrentMeasure::slope = 0.04099;
+const unsigned long CurrentMeasure::printPeriod = 1000;
 
 CurrentMeasure::CurrentMeasure(Mqtt mqtt){
   this->mqtt = mqtt;
@@ -9,33 +11,74 @@ CurrentMeasure::CurrentMeasure(Mqtt mqtt){
 }
 
 CurrentMeasure::CurrentMeasure(){
-
+  
 }
 
-//mqtt.publish(topic, stringMessage); 
-
-void CurrentMeasure::update(){
+void CurrentMeasure::measure(){
   sensorValue = analogRead(A0);  // read the analog in value:
   inputStats.input(sensorValue);  // log to Stats function
-  j++;
-  
+      
   if((unsigned long)(millis() - previousMillis) >= printPeriod) {
-    previousMillis = millis();   // update time
-    i++;  
-    // display current values to the screen
-    Serial.print( "\n" );
-    Serial.print("Probek: ");
-    Serial.println(j);
-    j = 0;
-    // output sigma or variation values associated with the inputValue itsel
-    Serial.print( inputStats.sigma() );
-    //Serial.print(" ");
-    //Serial.print(sensorValue);
-    if(i == 60){
-      Serial.println("");
-      Serial.println("----------------- 60 sec");
-      i = 0;
+    previousMillis = millis();
+
+    float sigma = inputStats.sigma();
+    
+    Serial.print("\n");
+    Serial.print("sigma: "); 
+    Serial.print(sigma);
+    //current_amps = (intercept + slope * sig)*1000;
+    //Serial.print( "\tamps: " ); Serial.print( current_amps );    
+    secondsCounter++;    
+    sigmaSum = sigmaSum + sigma;
+    
+    if(secondsCounter == 60){
+      float sigmaAverage = sigmaSum/secondsCounter;
+      Serial.print( "\n\t" );
+      Serial.print( "sigma: " ); 
+      Serial.print(sigmaAverage);      
+
+      float current_amps = (intercept + slope * sigmaAverage)*1000;
+      Serial.print( "\n\t" );
+      Serial.print( "mAmps: " ); 
+      Serial.print( current_amps );
+
+      secondsCounter = 0;  
+      sigmaSum = 0;
+      
+      //If connected to server and bigger than the 0amp sigma send!
+      //mqtt.publish(topic, stringMessage);
     }
   }
+}
+
+ 
+
+void CurrentMeasure::calibrate(){
+  sensorValue = analogRead(A0);  // read the analog in value:
+  inputStats.input(sensorValue);  // log to Stats function
+  samplesCounter++;
+  
+  if((unsigned long)(millis() - previousMillis) >= printPeriod) {
+    previousMillis = millis();
+    secondsCounter++;  
+    Serial.print( "\n" );
+    Serial.print("Probek: ");
+    Serial.println(samplesCounter);
+    samplesCounter = 0;
+    Serial.print( inputStats.sigma() );
+    if(secondsCounter == 60){
+      Serial.println("");
+      Serial.println("----------------- 60 sec");
+      secondsCounter = 0;
+    }
+  }
+}
+
+void averageSigma(){
+   
+}
+
+void CurrentMeasure::update(){
+  
 }
 

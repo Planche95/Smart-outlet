@@ -22,6 +22,7 @@ class Network{
     Network(String ssid, String password, char* ssidAccessPoint, char* passwordAccessPoint);
     Network();
     void configure();
+    bool isHost();
     void update();
 };
 
