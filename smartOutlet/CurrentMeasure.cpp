@@ -1,13 +1,16 @@
 #include "CurrentMeasure.h"
-#include "Network.h"
 
 int CurrentMeasure::maxCurrent = -1;
 float CurrentMeasure::sumCurrent = 0.0;
 int CurrentMeasure::i = 0;
-Mqtt CurrentMeasure::_mqtt;
+Mqtt CurrentMeasure::mqtt;
 
 CurrentMeasure::CurrentMeasure(Mqtt mqtt){
-  _mqtt = mqtt;
+  CurrentMeasure::mqtt = mqtt;
+}
+
+CurrentMeasure::CurrentMeasure(){
+
 }
 
 void CurrentMeasure::timerLastWill(){
@@ -41,25 +44,25 @@ void CurrentMeasure::sendAverageCurrent(void *context){
   String tempBuff;
   Serial.print("sumCurrent = ");
   Serial.println(sumCurrent);
-  tempBuff=String(sumCurrent/i);
+  tempBuff = String(sumCurrent/i);
   Serial.print("tempBuff = ");
   Serial.println(tempBuff);
   char stringMessage[tempBuff.length()];
   tempBuff.toCharArray(stringMessage,tempBuff.length());
   sumCurrent = 0.0;
   i = 0;
-  
-  char topic[8 + strlen(Network::_ssidAccessPoint)];
+
+  char topic[8 + strlen(mqtt.clientId)];
   strcpy(topic, "sockets/");
-  strcat(topic, Network::_ssidAccessPoint);
+  strcat(topic, mqtt.clientId);
   
-  _mqtt.publish(topic, stringMessage); 
+  mqtt.publish(topic, stringMessage); 
   Serial.print("i = ");
   Serial.println(i);
 }
 
 void CurrentMeasure::startTimers(){
-  _mqtt.connect();
+  mqtt.connect();
   timerMilisecId = timer.every(100, readCurrent, (void*)0);
   timerSecId = timer.every(1000, addCurrent, (void*)0);
   timerMinId = timer.every(60000, sendAverageCurrent, (void*)0);
@@ -72,7 +75,7 @@ void CurrentMeasure::stopTimers(){
   addCurrent((void*)0);
   sendAverageCurrent((void*)0);
   timerLastWill();
-  _mqtt.disconnect();
+  mqtt.disconnect();
 }
 
 void CurrentMeasure::update(){

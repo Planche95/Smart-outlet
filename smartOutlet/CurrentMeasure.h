@@ -9,7 +9,7 @@ class CurrentMeasure{
 
   private:
   Timer timer;
-  static Mqtt _mqtt;
+  static Mqtt mqtt;
   int timerMilisecId;
   int timerSecId;
   int timerMinId;
@@ -26,6 +26,7 @@ class CurrentMeasure{
 
   public:
   CurrentMeasure(Mqtt mqtt);
+  CurrentMeasure();
   void startTimers();
   void stopTimers();
   void update();

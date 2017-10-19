@@ -7,15 +7,17 @@
 class Mqtt{
 
   private:
-  WiFiClient _client;
-  PubSubClient _mqttClient;
-  char* _mqttServer;
-  int _port;
+  WiFiClient wifiClient;
+  PubSubClient mqttClient;
+  
+  char* mqttServer;
+  int port;
 
   public:
-  Mqtt(char* mqttServer, int port);
-  Mqtt();
+  char* clientId;
   
+  Mqtt(char* mqttServer, int port, char* clientId);
+  Mqtt();
   void configure();
   boolean connect();
   void disconnect();

@@ -1,20 +1,15 @@
 #include "Network.h"
 #include "Host.h"
-#include "AccessPoint.h"
-#include "Eeprom.h"
 
-char Network::_ssidAccessPoint[15];  
-char* Network::_passwordAccessPoint;
-
-Network::Network(char* passwordAccessPoint){
-  _passwordAccessPoint = passwordAccessPoint;
-  configureSsid();
+Network::Network(String ssid, String password, char* ssidAccessPoint, char* passwordAccessPoint){
+  this->ssid = ssid;
+  this->password = password;
+  this->passwordAccessPoint = passwordAccessPoint;
+  this->ssidAccessPoint = ssidAccessPoint;
 }
 
-void Network::configureSsid(){
-  String ssidAP = String(ESP.getFlashChipId()) + String(ESP.getChipId());
-  Serial.println("SSID: " + ssidAP);
-  ssidAP.toCharArray(_ssidAccessPoint, strlen(_ssidAccessPoint));
+Network::Network(){
+  
 }
 
 void Network::connect(String ssid, String password){
@@ -45,23 +40,20 @@ void Network::startService(){
 }
 
 void Network::startAccessPoint(){
-  *accessPoint = AccessPoint(_ssidAccessPoint, _passwordAccessPoint); 
+  *accessPoint = AccessPoint(ssidAccessPoint, passwordAccessPoint); 
   (*accessPoint).configure();
   (*accessPoint).begin();   
 }
 
 void Network::startServer(){
-  Host host(_ssidAccessPoint);
+  Host host(ssidAccessPoint);
   host.configure();
   host.begin();
 }
  
 void Network::configure(){
-  String ssidNetwork = Eeprom::eepromRead(ssidEepromStartByte);
-  String passwordNetwork = Eeprom::eepromRead(passwordEepromStartByte);
-
-  if(!ssidNetwork.equals("") and !passwordNetwork.equals("")){
-    connect(ssidNetwork, passwordNetwork);
+  if(!ssid.equals("") and !password.equals("")){
+    connect(ssid, password);
     startService();
   }
   else{

@@ -1,40 +1,40 @@
 #include "Host.h"
 
-char* Host::_ssid;
-ESP8266WebServer Host::_server;
+char* Host::ssid;
+ESP8266WebServer Host::server;
+
+Host::Host(char* ssid){
+  Host::ssid = ssid;
+  Host::server = ESP8266WebServer(80);
+}
 
 void Host::handleStartTimer(){
   //startTimers();
-  _server.send(200,"text/html","Timer start!");
+  server.send(200,"text/html","Timer start!");
 }
 
 void Host::handleRoot(){
-  _server.send(200,"text/html","Hello from esp8266! :" + String(_ssid));
+  server.send(200,"text/html","Hello from esp8266! :" + String(ssid));
 }
 
 void Host::handleStopTimer(){
   //stopTimer();
-  _server.send(200,"text/html","Timer stop!");
+  server.send(200,"text/html","Timer stop!");
 }
 
 void Host::handleNotFound(){
-  _server.send(200,"text/html", _server.uri());
-}
-
-Host::Host(char* ssid){
-  _ssid = ssid;
-  _server = ESP8266WebServer(80);
+  server.send(200,"text/html", server.uri());
 }
   
 void Host::configure(){
   Serial.print("Connected! IP: ");
   Serial.println(WiFi.localIP());
-  _server.on("/",handleRoot);
-  _server.on("/stop",handleStopTimer);
-  _server.on("/start",handleStartTimer);
-  _server.onNotFound(handleNotFound);
+  server.on("/",handleRoot);
+  server.on("/stop",handleStopTimer);
+  server.on("/start",handleStartTimer);
+  server.onNotFound(handleNotFound);
 }
 
 void Host::begin(){
-  _server.begin();
+  server.begin();
 }

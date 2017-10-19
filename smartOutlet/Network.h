@@ -5,26 +5,22 @@
 
 class Network{
   
-  private:      
-    static char* _passwordAccessPoint;    
+  private:
+    String password;    
+    String ssid;      
+    char* passwordAccessPoint;    
+    char* ssidAccessPoint;
+    //Zamien na klase/interfejs "Service"
     AccessPoint* accessPoint;
 
-    void configureSsid();
     void connect(String ssid, String password);
     void startService();
     void startAccessPoint();
     void startServer();
 
   public: 
-    //Jak sie tego pozbyc!!!
-    static const int ssidEepromStartByte = 0;
-    static const int passwordEepromStartByte = 33;
-    static const int ssidEepromMaxLength = 32;
-    static const int passwordEepromMaxLength = 32;
-
-    static char _ssidAccessPoint[15];
-
-    Network(char* passwordAccessPoint);
+    Network(String ssid, String password, char* ssidAccessPoint, char* passwordAccessPoint);
+    Network();
     void configure();
     void update();
 };

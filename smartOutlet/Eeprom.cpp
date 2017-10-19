@@ -2,7 +2,12 @@
 #include <EEPROM.h>
 #include "Eeprom.h"
 
-void Eeprom::eepromSave(int from, int maxLength, String value){
+const int Eeprom::ssidEepromStartByte = 0;
+const int Eeprom::passwordEepromStartByte = 33;
+const int Eeprom::ssidEepromMaxLength = 32;
+const int Eeprom::passwordEepromMaxLength = 32;
+
+void Eeprom::save(int from, int maxLength, String value){
   if(value.length() < maxLength){
     Serial.println("EEPROM: Write start " + value);
     
@@ -22,7 +27,7 @@ void Eeprom::eepromSave(int from, int maxLength, String value){
   }
 }
 
-String Eeprom::eepromRead(int from){
+String Eeprom::read(int from){
   EEPROM.begin(512);
   
   byte valueLength = EEPROM.read(from);
@@ -52,6 +57,22 @@ String Eeprom::eepromRead(int from){
     EEPROM.end();
     return "";
   }
+}
+
+void Eeprom::savePassword(String value){  
+  save(passwordEepromStartByte, passwordEepromMaxLength, value);
+}
+
+void Eeprom::saveSsid(String value){
+  save(ssidEepromStartByte, ssidEepromMaxLength, value);
+}
+
+String Eeprom::readPassword(){  
+  return read(passwordEepromStartByte);
+}
+
+String Eeprom::readSsid(){
+  return read(ssidEepromStartByte);
 }
 
 void Eeprom::readFirst66Bytes(){

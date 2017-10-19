@@ -1,56 +1,46 @@
 #include "AccessPoint.h"
 #include "Eeprom.h"
-#include "Network.h"
 
-char* AccessPoint::_ssid;
-char* AccessPoint::_password;
-ESP8266WebServer AccessPoint::_server;
+char* AccessPoint::ssid;
+char* AccessPoint::password;
+ESP8266WebServer AccessPoint::server;
+
+AccessPoint::AccessPoint(char* ssid, char* password){
+  AccessPoint::ssid = ssid;
+  AccessPoint::password = password; 
+  AccessPoint::server = ESP8266WebServer(80);
+}
 
 void AccessPoint::handleRoot(){
-  _server.send(200,"text/html", "Hello from esp8266! :" + String(_ssid));
+  server.send(200,"text/html", "Hello from esp8266! :" + String(ssid));
 }
 
 void AccessPoint::handleNotFound(){
-  _server.send(200,"text/html", _server.uri());
+  server.send(200,"text/html", server.uri());
 }
 
 void AccessPoint::handleConfigure(){
-  if(_server.args() == 2){
-    saveSsidAndPassword(_server.arg(0), _server.arg(1));
+  if(server.args() == 2){
+    Eeprom::saveSsid(server.arg(0));
+    Eeprom::savePassword(server.arg(1));
+    Serial.println("Reset Arduino!");
+    //TODO while(true) will reset?
+    stop(); 
   }
   else{
     Serial.println("Niepoprawna liczba argumentow");
   }
 }
 
-void AccessPoint::saveSsidAndPassword(String ssid, String password){
-  char ssidArray[ssid.length()]; 
-  char passwordArray[password.length()];
-
-  ssid.toCharArray(ssidArray, ssid.length() + 1);
-  password.toCharArray(passwordArray, password.length() + 1);
-
-  Eeprom::eepromSave(Network::ssidEepromStartByte, Network::ssidEepromMaxLength, ssidArray);
-  Eeprom::eepromSave(Network::passwordEepromStartByte, Network::passwordEepromMaxLength, passwordArray);
-  Serial.println("Reset Arduino!");
-  stop();  
-}
-
-AccessPoint::AccessPoint(char* ssid, char* password){
-  _ssid = ssid;
-  _password = password; 
-  _server = ESP8266WebServer(80);
-}
-
 void AccessPoint::configure(){
-  WiFi.softAP(_ssid, _password);
-  _server.on("/",handleRoot);
-  _server.on("/configure", handleConfigure);
-  _server.onNotFound(handleNotFound);
+  WiFi.softAP(ssid, password);
+  server.on("/",handleRoot);
+  server.on("/configure", handleConfigure);
+  server.onNotFound(handleNotFound);
 }
   
 void AccessPoint::begin(){
-  _server.begin();
+  server.begin();
   Serial.println("Access point!");  
 }
 
@@ -59,5 +49,5 @@ void AccessPoint::stop(){
 }
 
 void AccessPoint::handleClient(){
-  _server.handleClient();
+  server.handleClient();
 }
