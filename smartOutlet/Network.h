@@ -11,7 +11,7 @@ class Network{
     char* passwordAccessPoint;    
     char* ssidAccessPoint;
     //Zamien na klase/interfejs "Service"
-    AccessPoint* accessPoint;
+    AccessPoint* accessPoint = NULL;
 
     void connect(String ssid, String password);
     void startService();

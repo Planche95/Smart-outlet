@@ -25,6 +25,8 @@ class CurrentMeasure{
 
   void measure();
   void calibrate();
+  float calculateAverageCurrent();
+  void sumSigma();
 
   public:
   CurrentMeasure(Mqtt mqtt);

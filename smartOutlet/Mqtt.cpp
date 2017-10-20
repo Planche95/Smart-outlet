@@ -1,5 +1,8 @@
 #include "Mqtt.h"
 
+WiFiClient Mqtt::wifiClient;
+PubSubClient Mqtt::mqttClient;
+
 Mqtt::Mqtt(char* mqttServer, int port, char* clientId){
   this->clientId = clientId;
   this->mqttServer = mqttServer;
@@ -13,6 +16,36 @@ Mqtt::Mqtt(){
 
 void Mqtt::configure(){
   mqttClient.setServer(mqttServer, port);
+  mqttClient.setCallback(callback);
+  boolean isConnected = connect();
+  boolean isSubscribed = mqttClient.subscribe(clientId);
+  Serial.print("Topic: ");
+  Serial.print(clientId);
+  Serial.print(" Sub: ");
+  Serial.println(isSubscribed);
+}
+
+void Mqtt::callback(char* topic, byte* payload, unsigned int length){
+  char message[length + 1];
+  memcpy(message, (char*)payload, length);
+  message[length] = '\0';
+  
+  Serial.print("CallBack!! Topic: ");
+  Serial.print(topic);
+  Serial.print(" Payload: ");
+  Serial.print(message);
+  Serial.print(" Length: ");
+  Serial.println(length);
+  
+  if (strcmp(message,"CHECK") == 0) {
+     publish("ACK", topic);
+  }
+  else if (strcmp(message,"ON") == 0) {
+    Serial.println("Set low state on pin"); 
+  }
+  else if (strcmp(message,"OFF") == 0) {
+    Serial.println("Set high state on pin");
+  }
 }
 
 boolean Mqtt::connect(){

@@ -7,12 +7,14 @@
 class Mqtt{
 
   private:
-  WiFiClient wifiClient;
-  PubSubClient mqttClient;
+  static WiFiClient wifiClient;
+  static PubSubClient mqttClient;
   
   char* mqttServer;
   int port;
-
+  
+  static void callback(char* topic, byte* payload, unsigned int length);
+  
   public:
   char* clientId;
   
@@ -22,7 +24,7 @@ class Mqtt{
   boolean connect();
   void disconnect();
   int getState();
-  void publish(char* topic, char* payload);
+  static void publish(char* topic, char* payload);
   void update();
 };
 
