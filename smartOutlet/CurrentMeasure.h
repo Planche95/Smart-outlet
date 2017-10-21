@@ -14,6 +14,7 @@ class CurrentMeasure{
   static const float windowLength;
   static const float intercept;
   static const float slope;
+  static const float averageOfZeroAmps;
 
   static const unsigned long printPeriod;
   unsigned long previousMillis = 0;
@@ -27,6 +28,7 @@ class CurrentMeasure{
   void calibrate();
   float calculateAverageCurrent();
   void sumSigma();
+  void sendMeasuredData(float averageCurrent);
 
   public:
   CurrentMeasure(Mqtt mqtt);

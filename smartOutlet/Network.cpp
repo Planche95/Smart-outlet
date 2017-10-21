@@ -32,7 +32,8 @@ void Network::connect(String ssid, String password){
 
 void Network::startService(){
   if(WiFi.status() == WL_CONNECTED){
-    startServer();
+    //TODO insert CurrentMeasure here?
+    //startServer();
   }
   else{
     startAccessPoint();
@@ -66,8 +67,32 @@ bool Network::isHost(){
   return accessPoint == NULL;
 }
 
+bool Network::isAccessPoint(){
+  return accessPoint != NULL;
+}
+
+void Network::reconect(){
+  if((unsigned long)(millis() - waitForConnectStartTime) >= waitForConnectPeriod) {
+    char ssidArray[ssid.length()]; 
+    char passwordArray[password.length()];
+
+    ssid.toCharArray(ssidArray, ssid.length() + 1);
+    password.toCharArray(passwordArray, password.length() + 1);
+  
+    WiFi.begin(ssidArray, passwordArray);
+    
+    waitForConnectStartTime = millis();
+  }
+}
+
 void Network::update(){
-  if(accessPoint != NULL){
+  if(isAccessPoint()){
     (*accessPoint).handleClient();  
+  }
+  else{
+    if(WiFi.status() != WL_CONNECTED){
+      Serial.println(WiFi.status());
+      //reconect(); 
+    }
   }
 }

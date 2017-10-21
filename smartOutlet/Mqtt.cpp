@@ -14,6 +14,7 @@ Mqtt::Mqtt(){
 
 }
 
+//TODO slip to: configure, connect and startService
 void Mqtt::configure(){
   mqttClient.setServer(mqttServer, port);
   mqttClient.setCallback(callback);
@@ -71,9 +72,32 @@ void Mqtt::publish(char* topic, char* payload){
   Serial.println("Public message " + String(payload) + " on topic " + String(topic));
 }
 
+void Mqtt::publish(char* topic, float payload){
+
+  String payloadString = String(payload);
+
+  char payloadArray[payloadString.length() + 1];
+  payloadString.toCharArray(payloadArray, payloadString.length() + 1);
+  
+  mqttClient.publish(topic, payloadArray);
+  Serial.println("Public message " + payloadString + " on topic " + String(topic));
+}
+
+void Mqtt::reconnect(){
+  
+  if((unsigned long)(millis() - waitForConnectStartTime) >= waitForConnectPeriod) {
+    //configure();    
+    waitForConnectStartTime = millis();
+    Serial.print("MQTT state test: ");
+    Serial.println(mqttClient.state());
+  }
+}
+
 void Mqtt::update(){
   if(mqttClient.state() == 0){
     mqttClient.loop();  
+  } else{
+    reconnect();
   }
 }
 

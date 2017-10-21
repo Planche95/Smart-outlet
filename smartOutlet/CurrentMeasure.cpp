@@ -4,6 +4,7 @@ const float CurrentMeasure::windowLength = 20.0/60;
 const float CurrentMeasure::intercept = -0.055;
 const float CurrentMeasure::slope = 0.038;
 const unsigned long CurrentMeasure::printPeriod = 1000;
+const float CurrentMeasure::averageOfZeroAmps = 60.0;
 
 CurrentMeasure::CurrentMeasure(Mqtt mqtt){
   this->mqtt = mqtt;
@@ -14,9 +15,16 @@ CurrentMeasure::CurrentMeasure(){
   
 }
 
+int i = 0;
+
 void CurrentMeasure::measure(){
-  sensorValue = analogRead(A0);  // read the analog in value:
-  inputStats.input(sensorValue);  // log to Stats function
+  if(i%1000 == 0){
+    sensorValue = analogRead(A0);  // read the analog in value:
+    inputStats.input(sensorValue);  // log to Stats function
+    i = 1;
+  }else{
+    i++;
+  }
       
   if((unsigned long)(millis() - previousMillis) >= printPeriod) {
 
@@ -29,9 +37,8 @@ void CurrentMeasure::measure(){
 
       secondsCounter = 0;  
       sigmaSum = 0;
-      
-      //If connected to server and bigger than the 0amp sigma send!
-      //mqtt.publish(topic, stringMessage);
+
+      sendMeasuredData(averageCurrent);      
     }
   }
 }
@@ -62,6 +69,17 @@ void CurrentMeasure::sumSigma(){
   Serial.print(test_amps);
 
   sigmaSum = sigmaSum + sigma;
+}
+
+void CurrentMeasure::sendMeasuredData(float averageCurrent){
+  if(averageCurrent > averageOfZeroAmps and mqtt.getState() == 0){
+
+    String topic = "sockets/" + String(mqtt.clientId);
+    char topicArray[topic.length() + 1];
+    topic.toCharArray(topicArray, topic.length() + 1);
+    
+    mqtt.publish(topicArray, averageCurrent);  
+  }
 }
 
 void CurrentMeasure::calibrate(){
