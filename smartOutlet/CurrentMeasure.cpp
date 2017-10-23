@@ -1,8 +1,8 @@
 #include "CurrentMeasure.h"
 
-const float CurrentMeasure::windowLength = 20.0/60;
-const float CurrentMeasure::intercept = -0.055;
-const float CurrentMeasure::slope = 0.038;
+const float CurrentMeasure::windowLength = 0.75;
+const float CurrentMeasure::intercept = -0.003;
+const float CurrentMeasure::slope = 0.036;
 const unsigned long CurrentMeasure::printPeriod = 1000;
 const float CurrentMeasure::averageOfZeroAmps = 60.0;
 
@@ -15,31 +15,67 @@ CurrentMeasure::CurrentMeasure(){
   
 }
 
-int i = 0;
+//TODO clean code
+int j =0;
+int initialDelay = 0;
+
+int maxSec = 0;
+long analogMinSum = 0;
 
 void CurrentMeasure::measure(){
-  if(i%1000 == 0){
-    sensorValue = analogRead(A0);  // read the analog in value:
-    inputStats.input(sensorValue);  // log to Stats function
-    i = 1;
-  }else{
-    i++;
-  }
+  analogReadEvery(analogReadPeriod);
       
   if((unsigned long)(millis() - previousMillis) >= printPeriod) {
-
     previousMillis = millis();
-    sumSigma();
-    secondsCounter++;    
     
-    if(secondsCounter == 60){
-      float averageCurrent = calculateAverageCurrent();
+    if(initialDelay < 4){
+      initialDelay++;
+      Serial.println("WAIT");
+      j=0;
+      analogSecSum = 0;
+    } else{
+      sumSigma();
+      secondsCounter++;    
 
-      secondsCounter = 0;  
-      sigmaSum = 0;
+      //Serial.print(" sensorValue: ");
+      //Serial.print(sensorValue);
 
-      sendMeasuredData(averageCurrent);      
+      //Serial.print(" analogSecSum: ");
+      //Serial.print(analogSecSum );
+      
+      //Serial.print(" Nr of samples: ");
+      //Serial.print(j);
+      
+      Serial.print(" Average analogSecRead: ");
+      Serial.print(analogSecSum / j);
+      analogMinSum = analogMinSum + (analogSecSum / j);
+      analogSecSum = 0;
+      
+      j = 0;
+      if(secondsCounter == 60){  
+        Serial.print(" Average analogMinRead: ");
+        Serial.println(analogMinSum / 60);
+        analogMinSum = 0;
+            
+        float averageCurrent = calculateAverageCurrent();
+  
+        secondsCounter = 0;  
+        sigmaSum = 0;
+  
+        sendMeasuredData(averageCurrent);      
+      }
     }
+  }
+}
+
+void CurrentMeasure::analogReadEvery(unsigned long milisecTimePeriod){
+  if((unsigned long)(millis() - analogReadStartTime) >= milisecTimePeriod) {
+    sensorValue = analogRead(A0);
+    inputStats.input(sensorValue);  
+    analogReadStartTime = millis();
+    j++;
+
+    analogSecSum = analogSecSum + sensorValue;
   }
 }
 
@@ -47,6 +83,7 @@ float CurrentMeasure::calculateAverageCurrent(){
   float sigmaAverage = sigmaSum/secondsCounter;
   Serial.print( "\n\t" );
   Serial.print( "sigma: " ); 
+  //Serial.println();
   Serial.print(sigmaAverage);      
 
   float current_amps = (intercept + slope * sigmaAverage)*1000;
@@ -79,27 +116,6 @@ void CurrentMeasure::sendMeasuredData(float averageCurrent){
     topic.toCharArray(topicArray, topic.length() + 1);
     
     mqtt.publish(topicArray, averageCurrent);  
-  }
-}
-
-void CurrentMeasure::calibrate(){
-  sensorValue = analogRead(A0);  
-  inputStats.input(sensorValue);  
-  samplesCounter++;
-  
-  if((unsigned long)(millis() - previousMillis) >= printPeriod) {
-    previousMillis = millis();
-    secondsCounter++;  
-    Serial.print( "\n" );
-    Serial.print("Probek: ");
-    Serial.println(samplesCounter);
-    samplesCounter = 0;
-    Serial.print( inputStats.sigma() );
-    if(secondsCounter == 60){
-      Serial.println("");
-      Serial.println("----------------- 60 sec");
-      secondsCounter = 0;
-    }
   }
 }
 

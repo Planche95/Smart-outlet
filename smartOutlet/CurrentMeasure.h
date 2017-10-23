@@ -16,6 +16,9 @@ class CurrentMeasure{
   static const float slope;
   static const float averageOfZeroAmps;
 
+  unsigned long analogReadStartTime = 0;
+  unsigned long analogReadPeriod = 3;
+
   static const unsigned long printPeriod;
   unsigned long previousMillis = 0;
 
@@ -29,6 +32,7 @@ class CurrentMeasure{
   float calculateAverageCurrent();
   void sumSigma();
   void sendMeasuredData(float averageCurrent);
+  void analogReadEvery(unsigned long milisecTimePeriod);
 
   public:
   CurrentMeasure(Mqtt mqtt);
