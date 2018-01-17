@@ -7,7 +7,7 @@
 const int SSID_ACCESS_POINT_SIZE = 15;
 char SSID_ACCESS_POINT[SSID_ACCESS_POINT_SIZE];
 char* ACCESS_POINT_PASSWORD = "123456789";
-char* MQTT_IP = "192.168.0.104";
+char* MQTT_IP = "192.168.0.103";
 int MQTT_PORT = 1883;
 
 Network network;
@@ -25,6 +25,8 @@ void configureSsid(){
 void setup() {
   Serial.begin(57600);
   Serial.println();
+
+  pinMode(D2,OUTPUT);
   
   configureSsid();
 

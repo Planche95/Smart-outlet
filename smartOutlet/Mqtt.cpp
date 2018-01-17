@@ -37,15 +37,28 @@ void Mqtt::callback(char* topic, byte* payload, unsigned int length){
   Serial.print(message);
   Serial.print(" Length: ");
   Serial.println(length);
+
+  String sendTopic = "sockets/" + String(topic);
+  char topicArray[sendTopic.length() + 1];
+  sendTopic.toCharArray(topicArray, sendTopic.length() + 1);
   
-  if (strcmp(message,"CHECK") == 0) {
-     publish("ACK", topic);
+  if (strcmp(message,"Check") == 0) {
+     int state = digitalRead(D2);
+     if(state == HIGH){
+       publish(topicArray, "False");
+       Serial.println("Check state: False");
+     } else {
+       publish(topicArray, "True");
+       Serial.println("Check state: True");
+     }
   }
-  else if (strcmp(message,"ON") == 0) {
+  else if (strcmp(message,"True") == 0) {
     Serial.println("Set low state on pin"); 
+    digitalWrite(D2, LOW);
   }
-  else if (strcmp(message,"OFF") == 0) {
+  else if (strcmp(message,"False") == 0) {
     Serial.println("Set high state on pin");
+    digitalWrite(D2, HIGH);
   }
 }
 
