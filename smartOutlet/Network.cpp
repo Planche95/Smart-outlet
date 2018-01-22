@@ -40,10 +40,13 @@ void Network::startService(){
   }
 }
 
+int isAc = 0;
+
 void Network::startAccessPoint(){
   *accessPoint = AccessPoint(ssidAccessPoint, passwordAccessPoint); 
   (*accessPoint).configure();
-  (*accessPoint).begin();   
+  (*accessPoint).begin(); 
+  isAc = 1;  
 }
 
 void Network::startServer(){
@@ -64,11 +67,13 @@ void Network::configure(){
 }
 
 bool Network::isHost(){
-  return accessPoint == NULL;
+  return isAc == 0;
+  //return accessPoint == NULL;
 }
 
 bool Network::isAccessPoint(){
-  return accessPoint != NULL;
+  return isAc == 1;
+  //return accessPoint != NULL;
 }
 
 void Network::reconect(){
@@ -91,7 +96,7 @@ void Network::update(){
   }
   else{
     if(WiFi.status() != WL_CONNECTED){
-      Serial.println(WiFi.status());
+      //Serial.println(WiFi.status());
       //reconect(); 
     }
   }

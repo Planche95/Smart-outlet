@@ -17,7 +17,7 @@ class CurrentMeasure{
   static const float averageOfZeroAmps;
 
   unsigned long analogReadStartTime = 0;
-  unsigned long analogReadPeriod = 3;
+  unsigned long analogReadPeriod = 4;
 
   static const unsigned long printPeriod;
   unsigned long previousMillis = 0;
@@ -28,6 +28,7 @@ class CurrentMeasure{
   int samplesCounter = 0;
 
   void measure();
+  void calculateSigma();
   void calibrate();
   float calculateAverageCurrent();
   void sumSigma();

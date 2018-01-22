@@ -45,20 +45,20 @@ void Mqtt::callback(char* topic, byte* payload, unsigned int length){
   if (strcmp(message,"Check") == 0) {
      int state = digitalRead(D2);
      if(state == HIGH){
-       publish(topicArray, "False");
-       Serial.println("Check state: False");
-     } else {
        publish(topicArray, "True");
        Serial.println("Check state: True");
+     } else {
+       publish(topicArray, "False");
+       Serial.println("Check state: False");
      }
   }
   else if (strcmp(message,"True") == 0) {
-    Serial.println("Set low state on pin"); 
-    digitalWrite(D2, LOW);
+    Serial.println("Set high state on pin"); 
+    digitalWrite(D2, HIGH);
   }
   else if (strcmp(message,"False") == 0) {
-    Serial.println("Set high state on pin");
-    digitalWrite(D2, HIGH);
+    Serial.println("Set low state on pin");
+    digitalWrite(D2, LOW);
   }
 }
 
@@ -99,7 +99,7 @@ void Mqtt::publish(char* topic, float payload){
 void Mqtt::reconnect(){
   
   if((unsigned long)(millis() - waitForConnectStartTime) >= waitForConnectPeriod) {
-    //configure();    
+    configure();    
     waitForConnectStartTime = millis();
     Serial.print("MQTT state test: ");
     Serial.println(mqttClient.state());
@@ -109,7 +109,9 @@ void Mqtt::reconnect(){
 void Mqtt::update(){
   if(mqttClient.state() == 0){
     mqttClient.loop();  
+    digitalWrite(BUILTIN_LED, LOW);
   } else{
+    digitalWrite(BUILTIN_LED, HIGH);
     reconnect();
   }
 }

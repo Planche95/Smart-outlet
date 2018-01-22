@@ -25,9 +25,20 @@ void configureSsid(){
 void setup() {
   Serial.begin(57600);
   Serial.println();
-
-  pinMode(D2,OUTPUT);
+  //WiFi.softAPdisconnect(true);
   
+  pinMode(D2,OUTPUT);
+  digitalWrite(D2, HIGH); 
+  pinMode(BUILTIN_LED, OUTPUT);
+  digitalWrite(BUILTIN_LED, HIGH);
+
+  if(WiFi.softAPIP() == IPAddress(0,0,0,0)){
+    Serial.println("There is no SoftAP!");
+  } else {
+    Serial.println("There is SoftAP!");
+    WiFi.softAPdisconnect(true);
+  }
+
   configureSsid();
 
   String ssidNetwork = Eeprom::readSsid();
@@ -44,8 +55,9 @@ void setup() {
 
 void loop() {
   network.update();
-  mqtt.update();
   if(network.isHost()){
+    //Serial.println(network.isHost());
+    mqtt.update();
     currentMeasure.update();  
   }
 }
